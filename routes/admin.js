@@ -12,7 +12,6 @@ const hmac=require('../util/hmac.js')
 const pagination = require('../util/pagination.js')
 
 
-
 /*
 router.get("/init",(req,res)=>{
 	//插入数据到数据库
@@ -30,6 +29,7 @@ router.get("/init",(req,res)=>{
 	})
 });
 */
+
 //用户登录
 router.post("/login",(req,res)=>{
 	let body = req.body;
@@ -78,13 +78,49 @@ router.get('/home',(req,res)=>{
 	}
 	res.json(result);
 })
-router.use((req,res,next)=>{
-	if(req.userInfo.isAdmin){
-		next()
-	}else{
-		res.send('<h1>请用管理员账号登录</h1>');
+//显示用户列表
+router.get('/users',(req,res)=>{
+	//获取所有用户的信息,分配给模板
+	let options = {
+		page: req.query.page,//需要显示的页码
+		model:UserModel, //操作的数据模型
+		query:{}, //查询条件
+		sort:{_id:-1} //排序
 	}
+	//数据都藏在pagination里
+	pagination(options)
+	.then((result)=>{
+		res.json({
+			code:0,
+			data:{
+				current:result.current,
+				total:result.total,
+				pageSize:result.pageSize,
+				list:result.list,
+				total:result.total
+			}
+		})	
+	})
 })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //显示首页
 router.use((req,res,next)=>{
 	if(req.userInfo.isAdmin){
@@ -100,62 +136,12 @@ router.get("/",(req,res)=>{
 		userInfo:req.userInfo
 	})
 })
-router.get('/users',(req,res)=>{
-	//获取所有用户的信息,分配给模板
-	
-	//获取所有用户的信息,分配给模板
 
-	let options = {
-		page: req.query.page,//需要显示的页码
-		model:UserModel, //操作的数据模型
-		query:{}, //查询条件
-		projection:'_id username isAdmin', //投影，
-		sort:{_id:-1} //排序
-	}
-
-	pagination(options)
-	.then((data)=>{
-		res.render('admin/user_list',{
-			userInfo:req.userInfo,
-			users:data.docs,
-			page:data.page,
-			list:data.list,
-			pages:data.pages,
-			url:'/admin/users'
-		});	
-	})
-
-
-
-})
 
 router.get('/add',(req,res)=>{
 	res.render('admin/category_add')
 })
 
-//显示用户列表
-router.get('/users',(req,res)=>{
-	//获取所有用户的信息,分配给模板
-	let options = {
-		page: req.query.page,//需要显示的页码
-		model:UserModel, //操作的数据模型
-		query:{}, //查询条件
-		projection:'_id username isAdmin', //投影，
-		sort:{_id:-1} //排序
-	}
-
-	pagination(options)
-	.then((data)=>{
-		res.render('admin/user_list',{
-			userInfo:req.userInfo,
-			users:data.docs,
-			page:data.page,
-			list:data.list,
-			pages:data.pages,
-			url:'/admin/users'
-		});	
-	})
-})
 
 //添加文章是处理图片上传
 router.post('/uploadImages',upload.single('upload'),(req,res)=>{

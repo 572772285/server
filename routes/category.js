@@ -9,9 +9,113 @@ router.use((req,res,next)=>{
 	if(req.userInfo.isAdmin){
 		next()
 	}else{
-		res.send('<h1>请用管理员账号登录</h1>');
+		res.send({
+			code:10
+		});
 	}
 })
+
+//处理添加请求
+router.post("/",(req,res)=>{
+	let body = req.body;
+	CategoryModel
+	.findOne({name:body.name,pid:body.pid})	
+	.then((cate)=>{
+		if(cate){//已经存在渲染错误页面
+	 		res.json({
+	 			code:1,
+	 			message:'分类已经存在，插入失败'
+	 		})
+		}else{
+			new CategoryModel({
+				name:body.name,
+				pid:body.pid
+			})
+			.save()
+			.then((newCate)=>{	
+				if(newCate){//新增成功,渲染成功页面
+					if(body.pid==0){
+						CategoryModel.find({pid:0},"_id name")
+						.then((categories)=>{
+							res.json({
+								code:0,
+								data:categories
+							})	
+						})
+					}else{
+						res.json({
+							code:0
+						})
+					}
+				}
+			})
+			.catch((e)=>{
+		 		res.json({
+		 			code:1,
+		 			message:"添加分类失败,服务器端错误"
+		 		})
+			})
+		}
+	})
+})
+router.get('/',(req,res)=>{
+	let pid=req.query.pid;
+	let page=req.query.page;
+	if(page){
+		CategoryModel
+		.getPaginationCategories(page,{pid:pid})
+		.then((result)=>{
+			res.json({
+				code:0,
+				data:{
+					current:result.current,
+					total:result.total,
+					pageSize:result.pageSize,
+					list:result.list,
+				}
+			})	
+		})
+	}else{
+		CategoryModel.find({pid:pid},"_id name pid order")
+		.then((categories)=>{
+			res.json({
+				code:0,
+				data:categories
+			})	
+		})
+		.catch(e=>{
+	 		res.json({
+	 			code:1,
+	 			message:"获取分类失败,服务器端错误"
+	 		})		
+		})		
+	}
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //显示分类管理页面
 router.get("/",(req,res)=>{
@@ -43,42 +147,7 @@ router.get("/add",(req,res)=>{
 		userInfo:req.userInfo
 	});
 })
-//处理添加请求
-router.post("/add",(req,res)=>{
-	let body = req.body;
-	// console.log('body::',body)
-	CategoryModel
-	.findOne({name:body.name})
-	.then((cate)=>{
-		if(cate){//已经存在渲染错误页面
-	 		res.render('admin/error',{
-				userInfo:req.userInfo,
-				message:'新增分类失败,已有同名分类'
-			})
-		}else{
-			new CategoryModel({
-				name:body.name,
-				order:body.order
-			})
-			.save()
-			.then((newCate)=>{
-				if(newCate){//新增成功,渲染成功页面
-					res.render('admin/success',{
-						userInfo:req.userInfo,
-						message:'新增分类成功',
-						url:'/category'
-					})
-				}
-			})
-			.catch((e)=>{//新增失败,渲染错误页面
-		 		res.render('admin/error',{
-					userInfo:req.userInfo,
-					message:'新增分类失败,数据库操作失败'
-				})
-			})
-		}
-	})
-})
+
 
 
 //显示编辑页面
