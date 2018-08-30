@@ -91,8 +91,87 @@ router.get('/',(req,res)=>{
 		})		
 	}
 })
-
-
+//修改categories数据  1先去数据库查询 2更新 3返回数据res.json
+router.put('/updateName',(req,res)=>{
+let body = req.body;
+	CategoryModel
+	.findOne({name:body.name,pid:body.pid})	
+	.then((cate)=>{
+		if(cate){//已经存在渲染错误页面
+	 		res.json({
+	 			code:1,
+	 			message:'分类已经存在，更新分类失败'
+	 		})
+		}else{
+			CategoryModel
+			.update({_id:body.id},{name:body.name})
+			.then((cate)=>{
+				if(cate){
+					CategoryModel
+					.getPaginationCategories(body.page,{pid:body.pid})
+					.then((result)=>{
+						res.json({
+							code:0,
+							data:{
+								current:result.current,
+								total:result.total,
+								pageSize:result.pageSize,
+								list:result.list,
+							}
+						})	
+					})
+				}else{
+					res.json({
+			 			code:1,
+			 			message:"更新分类失败,数据操作失败"
+			 		})	
+				}
+			})
+			.catch((e)=>{
+				console.log(e)
+		 		res.json({
+		 			code:1,
+		 			message:"添加分类失败,服务器端错误"
+		 		})
+			})
+		}
+	})
+})
+//排序
+router.put('/updateOrder',(req,res)=>{
+let body = req.body;
+	CategoryModel
+	.update({_id:body.id},{order:body.order})
+	.then((cate)=>{
+		if(cate){
+			CategoryModel
+			.getPaginationCategories(body.page,{pid:body.pid})
+			.then((result)=>{
+				res.json({
+					code:0,
+					data:{
+						current:result.current,
+						total:result.total,
+						pageSize:result.pageSize,
+						list:result.list,
+					}
+				})	
+			})
+		}else{
+			res.json({
+	 			code:1,
+	 			message:"更新分类失败,数据操作失败"
+	 		})	
+		}
+	})
+	.catch((e)=>{
+		console.log(e)
+ 		res.json({
+ 			code:1,
+ 			message:"添加分类失败,服务器端错误"
+ 		})
+	})
+})
 
 
 
