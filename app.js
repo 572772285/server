@@ -8,7 +8,7 @@ const MongoStore = require("connect-mongo")(session);
 var cookieParser = require('cookie-parser')
 
 
-//启动数据库
+//1启动数据库
 mongoose.connect('mongodb://localhost:27017/kmall',{ useNewUrlParser: true });
 
 const db = mongoose.connection;
@@ -24,12 +24,12 @@ db.once('open',()=>{
 
 const app = express();
 
-//跨域设置
+//2跨域设置
 app.use((req,res,next)=>{
 	res.append("Access-Control-Allow-Origin","http://localhost:3000");
 	res.append("Access-Control-Allow-Credentials",true);
 	res.append("Access-Control-Allow-Methods","GET, POST, PUT,DELETE");
-	res.append("Access-Control-Allow-Headers", "Content-Type, X-Requested-With"); 
+	res.append("Access-Control-Allow-Headers", "Content-Type, X-Requested-With,X-File-Name"); 
 	next();
 })
 //
@@ -40,7 +40,7 @@ app.use((req,res,next)=>{
         next()
     }
 })
-//设置cookie的中间件,后面所有的中间件都会有cookie
+//3设置cookie的中间件,后面所有的中间件都会有cookie
 app.use(session({
     //设置cookie名称
     name:'kmid',
@@ -57,7 +57,7 @@ app.use(session({
     //设置session存储在数据库中
     store:new MongoStore({ mongooseConnection: mongoose.connection })   
 }))
-//cookies插件，一般没用
+//4cookies插件，一般没用
 // app.use(cookieParser())
 app.use((req,res,next)=>{
 	req.userInfo  = req.session.userInfo || {};
@@ -65,7 +65,8 @@ app.use((req,res,next)=>{
     // console.log('userinfo',req.userInfo)
     // console.log('userinfo1',req.cookies)
 });
-
+//5处理静态页面
+app.use(express.static('public'));
 //添加处理post请求的中间件
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -80,6 +81,7 @@ app.use("/article",require('./routes/article.js'));
 app.use("/comment",require('./routes/comment.js'));
 app.use("/resource",require('./routes/resource.js'));
 app.use("/home",require('./routes/home.js'));
+app.use("/product",require('./routes/product.js'));
 
 
 app.listen(3001,()=>{
