@@ -35,7 +35,7 @@ router.post("/",(req,res)=>{
 			.then((newCate)=>{	
 				if(newCate){//新增成功,渲染成功页面
 					if(body.pid==0){
-						CategoryModel.find({pid:0},"_id name")
+						CategoryModel.find({pid:0},"_id pid order name")
 						.then((categories)=>{
 							res.json({
 								code:0,
@@ -58,12 +58,13 @@ router.post("/",(req,res)=>{
 		}
 	})
 })
+//获取数据
 router.get('/',(req,res)=>{
 	let pid=req.query.pid;
 	let page=req.query.page;
 	if(page){
 		CategoryModel
-		.getPaginationCategories(page,{pid:pid})
+		.getPaginationCategories(page,{pid:pid},'id name order pid')
 		.then((result)=>{
 			res.json({
 				code:0,
@@ -76,7 +77,7 @@ router.get('/',(req,res)=>{
 			})	
 		})
 	}else{
-		CategoryModel.find({pid:pid},"_id name pid order")
+		CategoryModel.find({pid:pid})
 		.then((categories)=>{
 			res.json({
 				code:0,
