@@ -26,7 +26,7 @@ const app = express();
 
 //2跨域设置
 app.use((req,res,next)=>{
-	res.append("Access-Control-Allow-Origin","http://localhost:3000");
+    res.append("Access-Control-Allow-Origin","http://localhost:3000");
 	res.append("Access-Control-Allow-Credentials",true);
 	res.append("Access-Control-Allow-Methods","GET, POST, PUT,DELETE");
 	res.append("Access-Control-Allow-Headers", "Content-Type, X-Requested-With,X-File-Name"); 
