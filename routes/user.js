@@ -45,8 +45,8 @@ router.post("/register",(req,res)=>{
 			new UserModel({
 				username:body.username,
 				password:hmac(body.password),
-				email:hmac(body.email),
-				phone:hmac(body.phone),
+				email:(body.email),
+				phone:(body.phone),
 			})
 			.save((err,newUser)=>{
 				if(!err){//插入成功
@@ -99,7 +99,7 @@ router.post("/login",(req,res)=>{
 
 })
 //获取登陆数据
-router.get('/userInfo',(req,res)=>{
+router.get('/userName',(req,res)=>{
 	if(req.userInfo._id){
 		res.json({
 			code:0,
@@ -143,6 +143,48 @@ router.get('/logout',(req,res)=>{
 
 	res.json(result);
 
+})
+//权限控制
+router.use((req,res,next)=>{
+	if(req.userInfo._id){
+		next()
+	}else{
+		res.json({
+			code:10
+		})
+	}
+})
+
+router.get("/userInfo",(req,res)=>{
+	if(req.userInfo._id){
+		UserModel.findById(req.userInfo._id,"username phone email")
+		.then(user=>{
+			res.json({
+				code:0,
+				data:user
+			})
+		})
+	}else{
+		res.json({
+			code:1
+		});
+	}
+});
+//修改用户密码
+router.put("/updatePassword",(req,res)=>{
+	UserModel.update({_id:req.userInfo._id},{password:hmac(req.body.password)})
+	.then(raw=>{
+		res.json({
+			code:0,
+			message:'更新密码成功'
+		})
+	})
+	.catch(e=>{
+		res.json({
+			code:1,
+			message:'更新密码失败'
+		})
+	})
 })
 
 module.exports = router;
