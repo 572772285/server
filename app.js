@@ -82,6 +82,7 @@ app.use("/comment",require('./routes/comment.js'));
 app.use("/resource",require('./routes/resource.js'));
 app.use("/home",require('./routes/home.js'));
 app.use("/product",require('./routes/product.js'));
+app.use("/cart",require('./routes/cart.js'));
 
 
 app.listen(3001,()=>{
