@@ -83,6 +83,8 @@ app.use("/resource",require('./routes/resource.js'));
 app.use("/home",require('./routes/home.js'));
 app.use("/product",require('./routes/product.js'));
 app.use("/cart",require('./routes/cart.js'));
+app.use("/order",require('./routes/order.js'));
+app.use("/shipping",require('./routes/shipping.js'));
 
 
 app.listen(3001,()=>{

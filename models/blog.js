@@ -107,6 +107,50 @@ UserSchema.methods.getCart = function(){
 
     });
 }
+//获取当前用户的订单商品列表
+UserSchema.methods.getOrderProductList = function(){
+    return new Promise((resolve,reject)=>{
+        //如果没有购物车信息返回空对象
+        if(!this.cart){
+            resolve({
+                cartList:[]
+            });
+        }
+        let checkedCartList = this.cart.cartList.filter(cartItem=>{
+          return cartItem.checked;
+        })
+        //获取购物车项目的promise
+        let getCartItems = checkedCartList.map(cartItem=>{
+                return  ProductModel
+                        .findById(cartItem.product,"name price stoke filePath _id")
+                        .then(product=>{
+                            cartItem.product = product;
+                            cartItem.totalPrice = product.price * cartItem.count
+                            return cartItem
+                        })
+        })
+        
+        Promise.all(getCartItems)
+        .then(cartItems=>{
+            
+            //计算总价格
+            let totalCartPrice = 0;
+            cartItems.forEach(item=>{
+                if(item.checked){
+                    totalCartPrice += item.totalPrice
+                }
+            })
+            this.cart.totalCartPrice = totalCartPrice;
+
+            //设置新的购物车列表
+            this.cart.cartList = cartItems;
+            
+            resolve(this.cart);
+        })
+
+    });
+}
+
 
 const UserModel = mongoose.model('User', UserSchema);
 
