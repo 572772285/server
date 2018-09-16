@@ -14,7 +14,7 @@ router.use((req,res,next)=>{
 		})
 	}
 })
-//注册用户
+//添加购物车
 router.post("/",(req,res)=>{
 	let body = req.body;
 	UserModel.findById(req.userInfo._id)

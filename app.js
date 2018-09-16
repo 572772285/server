@@ -85,6 +85,7 @@ app.use("/product",require('./routes/product.js'));
 app.use("/cart",require('./routes/cart.js'));
 app.use("/order",require('./routes/order.js'));
 app.use("/shipping",require('./routes/shipping.js'));
+app.use("/payment",require('./routes/payment.js'));
 
 
 app.listen(3001,()=>{

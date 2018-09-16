@@ -31,6 +31,27 @@ const CartSchema = new mongoose.Schema({
     default:0
   }
 })
+const ShippingSchema = new mongoose.Schema({
+    name:{
+        type:String
+    },
+    province:{
+        type:String
+    },
+    city:{
+        type:String
+    },
+    address:{
+        type:String
+    },
+    phone:{
+        type:String
+    },
+    zip:{
+        type:String
+    }
+
+})
 const UserSchema = new mongoose.Schema({
   username:{
   	type:String
@@ -50,6 +71,10 @@ const UserSchema = new mongoose.Schema({
   },
   cart:{
     type:CartSchema
+  },
+  shipping:{
+    type:[ShippingSchema],
+    default:[]
   }
 },{//时间参数。默认存在schema的第二个参数，他会自动生成createAt
   timestamps:true
@@ -122,10 +147,10 @@ UserSchema.methods.getOrderProductList = function(){
         //获取购物车项目的promise
         let getCartItems = checkedCartList.map(cartItem=>{
                 return  ProductModel
-                        .findById(cartItem.product,"name price stoke filePath _id")
+                        .findById(cartItem.product,"name price stoke filePath _id FileList")
                         .then(product=>{
                             cartItem.product = product;
-                            cartItem.totalPrice = product.price * cartItem.count
+                            cartItem.totalPrice = product.price * cartItem.count;
                             return cartItem
                         })
         })
