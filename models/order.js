@@ -21,7 +21,7 @@ const ProductSchema  =  new mongoose.Schema({
         type:Number,
         deafult:1
     },
-    toatlPrice:{
+    totalPrice:{
         type:Number,
         deafult:0
     },

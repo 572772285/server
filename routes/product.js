@@ -1,5 +1,5 @@
 const Router = require('express').Router;
-const productModel=require('../models/product.js')
+const ProductModel=require('../models/product.js')
 const path = require('path');
 const router = new Router();
 const multer = require('multer');
@@ -42,7 +42,7 @@ router.get('/homeList',(req,res)=>{
 		sort = {price:-1}
 	}
 
-	productModel
+	ProductModel
 	.getPaginationProducts(page,query,projection,sort)
 	.then((result)=>{
 		// console.log(result)
@@ -66,7 +66,7 @@ router.get('/homeList',(req,res)=>{
 
 // 获取商品详细信息
 router.get('/homeDetail',(req,res)=>{
-	productModel
+	ProductModel
 	.findOne({status:0,_id:req.query.productId},"-__v -createdAt -updateAt -category")
 	.then(product=>{
 		res.json({ 

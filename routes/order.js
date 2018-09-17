@@ -31,22 +31,20 @@ router.get('/getOrderProductList',(req,res)=>{
  	.findOne({_id:req.userInfo._id})
  	.then(user=>{
  		let order = {};
- 		user
- 		.getOrder()
+ 		user.getOrderProductList()
  		.then(result=>{
- 	
- 			order.payment = result.toatlPrice;
+ 			console.log('a',result)
+ 			order.payment = result.totalPrice;
 
  			let productList =[];
  			result.cartList.forEach(item=>{
  				productList.push({
  					product:item.product._id,
  					count:item.count,
- 				
+ 					totalPrice:item.totalPrice,
  					Price:item.product.price,
- 					image:item.product.image,
+ 					FileList:item.product.FileList,
  					name:item.product.name,
-
  				})
  			})
  			order.productList  = productList;
@@ -112,7 +110,6 @@ router.get('/getOrderProductList',(req,res)=>{
 		
 		res.json({
 			code :0,
-			
 			data:{
 				list:data.list,
 				current:data.current,
@@ -164,4 +161,81 @@ router.get('/getOrderProductList',(req,res)=>{
 		})
 	})
 
+
+
+//权限控制
+ router.use((req,res,next)=>{
+ 	
+ 	if(req.userInfo.isAdmin){
+ 		next()
+ 	}else{
+ 		res.send({
+			code:10
+		});
+ 	}
+
+ })
+
+ //后台获取全部购物订单
+ router.get('/orderList',(req,res)=>{
+ 	let page = req.query.page;
+ 	OrderModel
+ 	.getPaginationProduct(page)
+	.then(data=>{
+		
+		res.json({
+			code :0,
+			
+			data:{
+				list:data.list,
+				current:data.current,
+				total:data.total,
+				pageSize:data.pageSize,
+				status:data.status
+			}
+		})
+	})
+ });
+ //搜索
+router.get('/search',(req,res)=>{
+	let page = req.query.page || 1;
+	let keyword = req.query.keyword
+	OrderModel
+	.getPaginationProduct(page,{
+		orderNo:{$regex:new RegExp(keyword,'i')}
+	})
+	.then((result)=>{
+		// console.log(result)
+		res.json({ 
+			code:0,
+			data:{
+				current:result.current,
+				total:result.total,
+				list:result.list,
+				pageSize:result.pageSize,
+				keyword:keyword
+			}
+		});	 
+	})
+	.catch(e=>{
+		res.json({
+			code:1,
+			message:'查找商品失败,数据库操作失败'
+		})
+	});
+})
+
+//获取订单详情
+ router.get('/detail',(req,res)=>{
+ 	let orderNo=req.query.orderNo
+ 	OrderModel
+ 	.findOne({orderNo:orderNo})
+	.then(data=>{
+		res.json({
+			code :0,
+			
+			data:data
+		})
+	})
+ });
 module.exports = router;
