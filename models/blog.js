@@ -93,12 +93,12 @@ UserSchema.methods.getCart = function(){
         //获取购物车项目的promise
         let getCartItems = this.cart.cartList.map(cartItem=>{
                 return  ProductModel
-                .findById(cartItem.product,"name price stock FileList _id")
-                .then(product=>{
-                    cartItem.product = product;
-                    cartItem.totalPrice = product.price * cartItem.count
-                    return cartItem
-                })
+                        .findById(cartItem.product,"name price stoke FileList _id")
+                        .then(product=>{
+                            cartItem.product = product;
+                            cartItem.totalPrice = product.price * cartItem.count;
+                            return cartItem
+                        })
         })
         
         Promise.all(getCartItems)
@@ -129,6 +129,9 @@ UserSchema.methods.getCart = function(){
 
             resolve(this.cart);
         })
+        .catch(e=>{
+            console.log(e);
+        })
 
     });
 }
@@ -147,10 +150,10 @@ UserSchema.methods.getOrderProductList = function(){
         //获取购物车项目的promise
         let getCartItems = checkedCartList.map(cartItem=>{
                 return  ProductModel
-                        .findById(cartItem.product,"name price stoke filePath _id FileList")
+                        .findById(cartItem.product,"name price stoke FileList _id")
                         .then(product=>{
                             cartItem.product = product;
-                            cartItem.totalPrice = product.price * cartItem.count;
+                            cartItem.totalPrice = product.price * cartItem.count
                             return cartItem
                         })
         })

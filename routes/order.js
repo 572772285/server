@@ -27,14 +27,13 @@ router.get('/getOrderProductList',(req,res)=>{
 
 //创建订单
  router.post('/',(req,res)=>{
- 	UserModel
- 	.findOne({_id:req.userInfo._id})
+ 	UserModel.findById(req.userInfo._id)
  	.then(user=>{
  		let order = {};
  		user.getOrderProductList()
  		.then(result=>{
  			console.log('a',result)
- 			order.payment = result.totalPrice;
+ 			order.payment = result.totalCartPrice;
 
  			let productList =[];
  			result.cartList.forEach(item=>{
@@ -79,8 +78,6 @@ router.get('/getOrderProductList',(req,res)=>{
 			 				return item.check == false;
 			 			})
 			 			
-			 			
-				 	
 				 	user.cart.cartList = newCartList;
 				 	user.save()
 				 	.then(newUser=>{
@@ -238,4 +235,30 @@ router.get('/search',(req,res)=>{
 		})
 	})
  });
+
+
+  //发货
+ router.put('/fahuo',(req,res)=>{
+ 	let orderNo=req.body.orderNo
+ 		OrderModel
+ 		.findOneAndUpdate(
+ 			{orderNo:orderNo},
+ 			{status:"40",statusDesc:"已发货"},
+ 			{new :true}
+ 			)
+		.then(order=>{
+		
+			res.json({
+				code :0,
+				data:order
+			})
+		})
+		.catch(e=>{
+			console.log(e)
+			res.json({
+				code :0,
+				message:"发货失败"
+			})
+		})
+	})
 module.exports = router;
